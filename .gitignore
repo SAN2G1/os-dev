@@ -1,0 +1,11 @@
+*.o
+*.a
+*.so
+*.elf
+*.bin
+*.img
+*.iso
+*.map
+*.sym
+
+
