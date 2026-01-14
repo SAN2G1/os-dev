@@ -8,14 +8,26 @@ AS = nasm
 ASFLAGS = -f elf
 
 # --- sources 자동 수집 ---
+# 1. C 소스 파일 찾기
 C_SOURCES = $(wildcard src/kernel/*.c) \
-			$(wildcard src/drivers/*/*.c)
+            $(wildcard src/drivers/*/*.c)
 
-# build 디렉토리 아래에 src 구조 그대로 오브젝트 생성
+# 2. 어셈블리 소스 파일 찾기 (이 부분이 추가되었습니다!)
+# src/drivers 폴더 아래의 모든 .s 파일을 찾습니다. (예: src/drivers/video/io.s)
+ASM_SOURCES = $(wildcard src/drivers/*/*.s)
+
+
+# --- Objects 파일 경로 생성 ---
+# C 소스 -> .o 파일 경로 변환
 C_OBJECTS = $(patsubst src/%.c, build/%.o, $(C_SOURCES))
 
-# loader는 고정
-OBJECTS = build/arch/i386/loader.o $(C_OBJECTS)
+# 어셈블리 소스 -> .o 파일 경로 변환 (이 부분이 추가되었습니다!)
+ASM_OBJECTS = $(patsubst src/%.s, build/%.o, $(ASM_SOURCES))
+
+
+# loader는 고정, 나머지는 자동 수집된 객체들 합치기
+# $(ASM_OBJECTS)를 끝에 추가하여 io.o가 링크되도록 합니다.
+OBJECTS = build/arch/i386/loader.o $(C_OBJECTS) $(ASM_OBJECTS)
 
 all: build/kernel.elf
 
