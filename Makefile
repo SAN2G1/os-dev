@@ -1,19 +1,32 @@
-OBJECTS = loader.o kmain.o
+# --- tools / flags (기존 내용 유지) ---
 CC = i686-elf-gcc
 LD = i686-elf-ld
 CFLAGS = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
-		 -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c
+		 -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c -Iinclude
 LDFLAGS = -T link.ld -melf_i386
 AS = nasm
 ASFLAGS = -f elf
 
-all: kernel.elf
+# --- sources 자동 수집 ---
+C_SOURCES = $(wildcard src/kernel/*.c) \
+			$(wildcard src/drivers/*/*.c)
 
-kernel.elf: $(OBJECTS)
-	ld $(LDFLAGS) $(OBJECTS) -o kernel.elf
+# build 디렉토리 아래에 src 구조 그대로 오브젝트 생성
+C_OBJECTS = $(patsubst src/%.c, build/%.o, $(C_SOURCES))
 
-os.iso: kernel.elf
-	cp kernel.elf iso/boot/kernel.elf
+# loader는 고정
+OBJECTS = build/arch/i386/loader.o $(C_OBJECTS)
+
+all: build/kernel.elf
+
+build:
+	mkdir -p build
+
+build/kernel.elf: $(OBJECTS)
+	$(LD) $(LDFLAGS) $(OBJECTS) -o build/kernel.elf
+
+build/os.iso: build/kernel.elf
+	cp build/kernel.elf iso/boot/kernel.elf
 	genisoimage -R                              \
 				-b boot/grub/stage2_eltorito    \
 				-no-emul-boot                   \
@@ -22,17 +35,21 @@ os.iso: kernel.elf
 				-input-charset utf8             \
 				-quiet                          \
 				-boot-info-table                \
-				-o os.iso                       \
+				-o build/os.iso                 \
 				iso
 
-run: os.iso
+run: build/os.iso
 	bochs -f bochsrc.txt -q
 
-%.o: %.c
+# --- rules: src 구조 유지하며 build 아래에 .o 생성 ---
+build/%.o: src/%.c | build
+	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS)  $< -o $@
 
-%.o: %.s
+build/%.o: src/%.s | build
+	mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
 clean:
-	rm -rf *.o kernel.elf os.iso
+	rm -rf build iso/boot/kernel.elf
+

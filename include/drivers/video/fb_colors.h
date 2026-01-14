@@ -1,0 +1,27 @@
+/*
+ * include/drivers/video/fb_colors.h 
+ */
+
+#ifndef DRIVERS_VIDEO_COLORS_H
+#define DRIVERS_VIDEO_COLORS_H
+
+typedef enum {
+	FB_BLACK,
+	FB_BLUE, 
+	FB_GREEN,
+	FB_CYAN,
+	FB_RED,
+	FB_MAGENTA,
+	FB_BROWN,
+	FB_LIGHTGREY,
+	FB_DARKGREY,
+	FB_LIGHTBLUE,
+	FB_LIGHTGREEN,
+	FB_LIGHTCYAN,
+	FB_LIGHTRED,
+	FB_LIGHTMAGENTA,
+	FB_LIGHTBROWN,
+	FB_WHITE
+	} fb_colors_t;
+
+#endif
