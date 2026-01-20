@@ -7,8 +7,8 @@
  * @param port 데이터를 보낼 I/O 포트
  * @param data 포트로 보낼 데이터 
  */
+#include "klib/types.h" 
+void outb( uint16_t port, uint8_t data ); 
 
-void outb(unsigned short port, unsigned char data ); 
-
-
+uint8_t inb(uint16_t port); 
 #endif 
