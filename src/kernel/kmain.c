@@ -12,6 +12,9 @@
 #include "drivers/serial/serial.h"
 #include "debug.h"
 #include "klib/kstring.h"
+#include "arch/i386/gdt.h"
+
+#define PRINT_DEBUG(msg) fb_write(msg, kstrlen(msg))
 
 /*LOG 출력 관련 메크로 정의*/
 
@@ -32,6 +35,8 @@ void kmain(void)
 	char *str = "my first kernel\n"; 
     fb_clear(); 
 	fb_write(str, kstrlen(str)); 
-
+    gdt_install(); 
+    PRINT_DEBUG("GDT installation successful!\n");
+   
 
 }

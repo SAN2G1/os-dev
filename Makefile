@@ -18,7 +18,8 @@ ASFLAGS = -f elf
 
 # 1. C 소스 파일 자동 수집
 # 커널(kernel)과 드라이버(drivers) 폴더 하위의 모든 .c 파일
-C_SOURCES = $(wildcard src/kernel/*.c) \
+C_SOURCES = $(wildcard src/arch/i386/*.c)\
+			$(wildcard src/kernel/*.c) \
             $(wildcard src/drivers/*/*.c) \
             $(wildcard src/klib/*.c) \
             $(wildcard src/*.c)
@@ -95,3 +96,4 @@ build/%.o: src/%.s | build
 # 청소
 clean:
 	rm -rf build iso/boot/kernel.elf
+	rm com1.out
