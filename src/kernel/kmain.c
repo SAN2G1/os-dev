@@ -49,4 +49,5 @@ void kmain(void)
     serial_printf("after int0\n");
 
     PRINT_DEBUG("Interrupt successful!!\n");
+    serial_printf("%x %x %x %x %x %x %x %x", 3);
 }
