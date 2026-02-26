@@ -13,7 +13,7 @@
 #include "debug.h"
 #include "klib/kstring.h"
 #include "arch/i386/gdt.h"
-
+#include "arch/i386/idt.h"
 #define PRINT_DEBUG(msg) fb_write(msg, kstrlen(msg))
 
 /*LOG 출력 관련 메크로 정의*/
@@ -37,6 +37,16 @@ void kmain(void)
 	fb_write(str, kstrlen(str)); 
     gdt_install(); 
     PRINT_DEBUG("GDT installation successful!\n");
-   
+    
+    idt_init(); 
+    PRINT_DEBUG("IDT init successful!\n");
+    serial_printf("before int3\n");
+    __asm__ volatile("int $0x03");   // breakpoint 예외(벡터 3)
+    serial_printf("after int3\n");
 
+    serial_printf("before int0\n");
+    __asm__ volatile("int $0x00");   // divide error 벡터 강제
+    serial_printf("after int0\n");
+
+    PRINT_DEBUG("Interrupt successful!!\n");
 }

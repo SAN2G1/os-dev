@@ -2,7 +2,7 @@
 #include "debug.h"
 #include "klib/kstring.h"
 #include "klib/types.h"
-
+#include "klib/stdarg.h"
 /* DEFAULT LOG LEVEL */
 static log_level serial_log_level = INFO; 
 
@@ -142,6 +142,14 @@ void serial_putc(char c)
 
 }
 
+void serial_puts(const char *str)
+{
+    while (*str != '\0')
+    {
+        serial_putc(*str);
+        str++;
+    }
+}
 
 /* serial_write
  * 문자열을 FIFO 큐에 쓰는 함수
@@ -157,6 +165,95 @@ void serial_write(const char *buf, uint32_t len)
     }
 
 }
+
+/* convert
+ * 숫자를 문자열로 바꾸는 함수 
+*/
+char * convert(unsigned int num, int base) 
+{
+    static char Representation[] = "0123456789ABCDEF"; 
+    static char buffer[50]; 
+    char *ptr; 
+
+    ptr = &buffer[49]; 
+    *ptr = '\0'; 
+    do 
+    {
+        *--ptr = Representation[num%base]; 
+        num /= base; 
+    }while(num != 0); 
+
+    return(ptr); 
+}
+
+/* serial_printf
+ * 문자열을 FIFO 큐에 쓰는 함수 포멧 문자열을 지원한다. 
+ * 
+ * @param buf 쓰고자 하는 문자열이 저장된 주소
+ * @param ... 가변 인자 
+ * 지원 된는 형식 문자는 %s, %c, %d, %x, %%만 지원
+ */
+void serial_printf(const char* str, ...)
+{
+    va_list arg; 
+    va_start(arg, str); 
+
+    for (const char *traverse = str; *traverse != '\0'; traverse++)
+    {
+        // 1. 일반 문자 출력
+        if (*traverse != '%') {
+            serial_putc(*traverse);
+            continue;
+        }
+
+        // 2. '%'를 만났을 때 다음 문자로 이동
+        traverse++;
+        if (*traverse == '\0') {
+            serial_putc('%');
+            break;
+        }
+
+        // 3. 서식 지정자 처리
+        switch(*traverse)
+        {
+            case 'c' : 
+                serial_putc(va_arg(arg, int)); 
+                break; 
+
+            case 'd': {
+                int d = va_arg(arg, int);
+                unsigned int u = (d < 0) ? (unsigned int)(0 - (unsigned int)d) : (unsigned int)d;
+                if (d < 0) serial_putc('-');
+                serial_puts(convert(u, 10));
+                break;
+            }
+
+            case 's' : {
+                const char *s = va_arg(arg, const char *);
+                if (s == (void*)0) s = "(null)"; // 널 포인터 예외 처리
+                serial_puts(s);
+                break;
+            }
+
+            case 'x' :
+                serial_puts(convert(va_arg(arg, unsigned int), 16)); 
+                break;
+
+            case '%' : 
+                serial_putc('%'); 
+                break; 
+
+            default : // 지원하지 않는 형식은 그대로 출력
+                serial_putc('%');
+                serial_putc(*traverse);
+                break; 
+        }
+    }
+    va_end(arg);
+}
+
+
+
 
 /* serial_set_log_level
  * 시리얼 로그의 로그 레벨을 설정하는 함수
