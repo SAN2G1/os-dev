@@ -96,4 +96,4 @@ build/%.o: src/%.s | build
 # 청소
 clean:
 	rm -rf build iso/boot/kernel.elf
-	rm com1.out
+	rm -f com1.out

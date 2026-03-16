@@ -3,7 +3,7 @@
 
 #include "klib/types.h"
 
-typedef struct registers {
+typedef struct {
     uint32_t ds;          // common_isr에서 push한 ds 저장값
 
     // pusha 결과 (메모리에서 보이는 순서)

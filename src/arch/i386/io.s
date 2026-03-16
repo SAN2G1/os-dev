@@ -1,5 +1,6 @@
 global outb
 global inb
+global io_wait
 ; outb - I/O 포트로 1바이트를 전송
 ; 스택 구조 : 
 ; [esp + 8] 전송할 데이터
@@ -21,3 +22,8 @@ inb:
     movzx eax, al ; 반환 값 정리
     ret
 
+
+io_wait:
+    xor al, al
+    out 0x80, al
+    ret

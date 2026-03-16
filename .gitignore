@@ -12,7 +12,7 @@ build/
 *.o
 kernel.elf
 os.iso
-iso/boot/kernel.elf
+
 bochslog.txt
 com1.out
-
+*.swp

@@ -14,6 +14,7 @@
 #include "klib/kstring.h"
 #include "arch/i386/gdt.h"
 #include "arch/i386/idt.h"
+#include "arch/i386/pic.h"
 #define PRINT_DEBUG(msg) fb_write(msg, kstrlen(msg))
 
 /*LOG 출력 관련 메크로 정의*/
@@ -37,17 +38,28 @@ void kmain(void)
 	fb_write(str, kstrlen(str)); 
     gdt_install(); 
     PRINT_DEBUG("GDT installation successful!\n");
+    serial_printf("[KMAIN] gdt_install done\n");
     
     idt_init(); 
-    PRINT_DEBUG("IDT init successful!\n");
-    serial_printf("before int3\n");
-    __asm__ volatile("int $0x03");   // breakpoint 예외(벡터 3)
-    serial_printf("after int3\n");
+    serial_printf("[KMAIN] idt_init done\n");
+    //PIC 초기화
+    pic_remap(0x20, 0x28); 
+    serial_printf("[KMAIN] pic_remap done\n");
+    
+    for (int i = 0; i  < 16; i++)
+    {
+        irq_set_mask(i); 
+    }
 
-    serial_printf("before int0\n");
-    __asm__ volatile("int $0x00");   // divide error 벡터 강제
-    serial_printf("after int0\n");
+    irq_clear_mask(0); // timer
+    irq_clear_mask(1); // keyboard
+    irq_clear_mask(2); // cascade
+    serial_printf("[KMAIN] irq mask configured\n");
+    __asm__ volatile ("sti"); // set the interrupt
+    serial_printf("[KMAIN] sti enabled\n");
+    PRINT_DEBUG("PIC ON"); 
 
-    PRINT_DEBUG("Interrupt successful!!\n");
-    serial_printf("%x %x %x %x %x %x %x %x", 3);
+    for (;;) {
+        __asm__ volatile ("hlt");
+    }
 }

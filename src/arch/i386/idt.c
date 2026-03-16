@@ -14,6 +14,8 @@ static idtr_t idtr;
 extern void* isr_stub_table[32];
 static bool vectors[IDT_MAX_DESCRIPTORS];
 
+//irq 엔트리 등록
+extern void * irq_stub_table[16]; 
 
 void idt_set_descriptor(uint8_t vector, void* isr, uint8_t flags)
 {
@@ -36,10 +38,13 @@ void idt_init(void) {
         idt_set_descriptor(vector, isr_stub_table[vector], 0x8E);
         vectors[vector] = true;
     }
+    for (uint8_t i = 0; i < 16; i++) 
+    {
+        idt_set_descriptor(32+i, irq_stub_table[i], 0x8E); 
+    }
 
     __asm__ volatile ("lidt %0" : : "m"(idtr)); // load the new IDT
-    // 일단 테스팅을 위해 임시로 끔 
-    // __asm__ volatile ("sti"); // set the interrupt flag
+    // __asm__ volatile ("sti"); // set the interrupt flag -> kernel/kmai.c 에서 진행
 }
 
 //general exception handler
@@ -51,4 +56,3 @@ void isr_handler(registers_t *r) {
         for (;;) { __asm__ volatile("cli; hlt"); }
     }
 }
-
