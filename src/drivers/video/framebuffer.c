@@ -38,7 +38,7 @@ void fb_write_cell(uint32_t i, char c, fb_colors_t fg, fb_colors_t bg)
 	char *vidptr = (char*) FB_START;
 
 	vidptr[i] = c; 
-	vidptr[i+1] = (0x10 * fg) + bg;
+	vidptr[i+1] = ((bg & 0x0F) << 4) | (fg & 0x0F); //(0x10 * fg) + bg;
 }
 
 /*fb_putc
