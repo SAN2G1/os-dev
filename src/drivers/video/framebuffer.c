@@ -7,6 +7,17 @@ static uint16_t cursor_pos = 0;
 
 //Tab 폭
 #define TAB_WIDTH 8
+#define KEY_HOME 0xE0
+#define KEY_END  0xE1
+#define KEY_UP   0xE2
+#define KEY_DN   0xE3
+#define KEY_LF   0xE4
+#define KEY_RT   0xE5
+#define KEY_PGUP 0xE6
+#define KEY_PGDN 0xE7
+#define KEY_INS  0xE8
+#define KEY_DEL  0xE9
+
 
 // 프레임 버퍼의 시작 지점
 #define FB_START 0xb8000
@@ -40,6 +51,43 @@ void fb_write_cell(uint32_t i, char c, fb_colors_t fg, fb_colors_t bg)
 	vidptr[i] = c; 
 	vidptr[i+1] = ((bg & 0x0F) << 4) | (fg & 0x0F); //(0x10 * fg) + bg;
 }
+/* fb_putkbd
+ * 키보드 입력을 받아서 커서 이동이나 문자 출력으로 처리한다. 
+ *
+ * @param key 키보드 입력에 해당하는 키 코드
+*/
+
+void fb_putkbd(int key)
+{
+    switch (key) {
+        case KEY_UP:
+            if (cursor_pos >= FB_WIDTH)
+                fb_move_cursor(cursor_pos - FB_WIDTH);
+            break;
+
+        case KEY_DN:
+            if (cursor_pos + FB_WIDTH < FB_WIDTH * FB_HEIGHT)
+                fb_move_cursor(cursor_pos + FB_WIDTH);
+            break;
+
+        case KEY_LF:
+            if (cursor_pos > 0)
+                fb_move_cursor(cursor_pos - 1);
+            break;
+
+        case KEY_RT:
+            if (cursor_pos + 1 < FB_WIDTH * FB_HEIGHT)
+                fb_move_cursor(cursor_pos + 1);
+            break;
+
+        default:
+            fb_putc((char)key);
+            break;
+    }
+}
+
+
+
 
 /*fb_putc
  * 프레임 버퍼의 cursor_pos 위치에 주어진 문자를 쓴다. 

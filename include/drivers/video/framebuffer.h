@@ -9,12 +9,14 @@
 #include "klib/types.h" 
 void fb_write_cell(uint32_t i, char c, fb_colors_t fg, fb_colors_t bg);
 
+void fb_putc(char c);
+
 void fb_write(char *buf, uint32_t len);
 
 void fb_clear();
+void fb_putkbd(int key);
 
 void fb_move_cursor(uint16_t pos);
 
 
 #endif
-

@@ -3,22 +3,24 @@
 #include "arch/i386/pic.h"
 #include "arch/i386/io.h"
 #include "drivers/serial/serial.h"
+#include "arch/i386/timer.h"
+#include "drivers/keyboard/keyboard.h"
+
 void irq_handler(registers_t *r) 
 {
     uint8_t irq = (uint8_t)(r->int_no - 32); 
     switch(irq) 
     {
-        case 0: /*timer tick */ break; 
+        case 0: /*timer tick */ 
+            timer_tick();
+            break; 
         case 1: /*keyboard read */ 
-                if(inb(0x64) & 0x01)
-                {
-                    uint8_t sc = inb(0x60) ; 
-                    serial_printf("[IRQ1] keyboard scancode = 0x%x\n", sc) ; 
-                }
-                break; 
+            keyboard_handle_irq();
+            break; 
 
         default: break ; 
     }
 
     pic_sendEOI(irq); 
 }
+  
