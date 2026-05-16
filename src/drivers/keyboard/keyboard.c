@@ -173,7 +173,7 @@ int keyboard_getchar(void){
         return c; // Return the corresponding character
     }
 }
-void keyboard_handle_irq(void){ // 수정 필요
+void keyboard_handle_irq(void){ 
 
     int c = keyboard_getchar();
     if (c == 0 ) return ;

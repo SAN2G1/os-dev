@@ -7,7 +7,7 @@ CC      = i686-elf-gcc
 LD      = i686-elf-ld
 # -Iinclude: 헤더 파일을 include 폴더에서 찾도록 설정
 CFLAGS  = -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector \
-          -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c -Iinclude
+          -nostartfiles -nodefaultlibs -Wall -Wextra -Werror -c -Iinclude 
 LDFLAGS = -T link.ld -melf_i386
 AS      = nasm
 ASFLAGS = -f elf
